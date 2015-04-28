@@ -251,6 +251,27 @@ function replace( bucketName, docName, newDoc, finalCallback ) {
 }
 
 
+// Runs a query on the database based on the viewQuery
+// For details on ViewQuery see: http://docs.couchbase.com/developer/node-2.0/view-queries.html
+//
+// bucketName : string,
+// viewQuery : object
+// finalCallback : function(err, results)
+function query( bucketName, viewQuery, finalCallback ) {
+	async.waterfall([
+		function(callback) {
+			getBucket(bucketName, callback);
+		},
+		function(bucket, callback) {
+			bucket.query(viewQuery, callback);
+		}	
+	], function(err, results) {
+		finalCallback(err, results);
+	});
+}
+
+
+
 // MAIN EXPORTS
 module.exports = {
 	setConnection : setConnection,
@@ -259,7 +280,8 @@ module.exports = {
 	getMulti : getMulti,
 	remove : remove,
 	upsert : upsert,
-	replace : replace
+	replace : replace,
+	query : query
 }
 
 
