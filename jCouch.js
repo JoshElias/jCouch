@@ -27,6 +27,9 @@ var bucketIntervalId;
 // METHODS
 
 // Connection
+
+// Gets the connection to a Couchbase Cluster
+// If no connection has been set then set it with the default ip and port
 function getConnection() {
 	if( typeof(connection) === "undefined" ) {
 		setConnection();
@@ -34,6 +37,11 @@ function getConnection() {
 	return connection;
 }
 
+
+// Sets a connection to a Couchbase Cluster
+//
+// _host : string
+// _port : string
 function setConnection( _host, _port ) {
 
 	// Set mongo options
@@ -44,6 +52,12 @@ function setConnection( _host, _port ) {
 	connection = new couchbase.Cluster(host+":"+port);
 }
 
+
+// Gets a reference to a Couchbase bucket
+// Each open bucket is kept track of and is closed on timeout
+//
+// bucketName: string
+// callback: function(err, bucket)
 function getBucket( bucketName, callback ) {
 
 	// Do we need to open a new bucket?
@@ -71,6 +85,9 @@ function getBucket( bucketName, callback ) {
 	}
 }
 
+
+// Function used to determine if a bucket is no longer being used
+// and disconnects the connection to it.
 function bucketIntervalFunc() {
 	for(var key in buckets) {
 		if(buckets.hasOwnProperty(key)) {
@@ -92,7 +109,9 @@ function bucketIntervalFunc() {
 }
 
 
-// Helpers
+// Converts a result from the Couchbase API into simple JSON
+//
+// couchResult: object
 function couchResultToJSON( couchResult ) {
 	if(typeof(couchResult.value) !== "undefined") {
 		return couchResult.value;
@@ -114,7 +133,13 @@ function couchResultToJSON( couchResult ) {
 	}
 }
 
-// Crud
+
+// Inserts a new document into the target Couchbase bucket
+//
+// bucketName : string
+// docName : string
+// doc : object
+// finalCallback : function(err, result)
 function insert( bucketName, docName, doc, finalCallback ) {
 	async.waterfall([
 		function(callback) {
@@ -128,6 +153,12 @@ function insert( bucketName, docName, doc, finalCallback ) {
 	});
 }
 
+
+// Gets the document with the specified name from the specified bucket
+//
+// bucketName : string
+// docName : string
+// finalCallback : function(err, result)
 function get( bucketName, docName, finalCallback ) {
 	async.waterfall([
 		function(callback) {
@@ -141,6 +172,12 @@ function get( bucketName, docName, finalCallback ) {
 	});
 }
 
+
+// Gets the documents with the specified names from the specified bucket
+//
+// bucketName : string
+// docNames : array
+// finalCallback : function(err, results)
 function getMulti( bucketName, docNames, finalCallback ) {
 	async.waterfall([
 		function(callback) {
@@ -154,6 +191,12 @@ function getMulti( bucketName, docNames, finalCallback ) {
 	});
 }
 
+
+// Removes the document matching the given name
+//
+// bucketName : string
+// docName : string
+// finalCallback : function(err, result)
 function remove( docName, finalCallback ) {
 	async.waterfall([
 		function(callback) {
@@ -167,26 +210,40 @@ function remove( docName, finalCallback ) {
 	});
 }
 
-function upsert( bucketName, docName, doc, finalCallback ) {
+
+// Updates/Inserts the given document in the specified bucket
+//
+// bucketName : string
+// docName : string
+// newDoc : object
+// finalCallback : function(err, results)
+function upsert( bucketName, docName, newDoc, finalCallback ) {
 	async.waterfall([
 		function(callback) {
 			getBucket(bucketName, callback);
 		},
 		function(bucket, callback) {
-			bucket.upsert(docName, doc, callback);
+			bucket.upsert(docName, newDoc, callback);
 		}	
 	], function(err, results) {
 		finalCallback(err, results);
 	});
 }
 
-function replace( bucketName, docName, doc, finalCallback ) {
+
+// Replaces the document with the matching name in the specified bucket with the given document
+//
+// bucketName : string
+// docName : string
+// newDoc : object
+// finalCallback : function(err, result)
+function replace( bucketName, docName, newDoc, finalCallback ) {
 	async.waterfall([
 		function(callback) {
 			getBucket(bucketName, callback);
 		},
 		function(bucket, callback) {
-			bucket.replace(docName, doc, callback);
+			bucket.replace(docName, newDoc, callback);
 		}	
 	], function(err, results) {
 		finalCallback(err, results);
