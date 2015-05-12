@@ -12,7 +12,7 @@ var util = require("util");
 // CONSTANTS
 var BUCKET_TIMEOUT = 10 * 1000;//10 * 60 * 1000;
 var BUCKET_INTERVAL = 10 * 1000;
-var DEFAULT_HOST = "52.4.120.251";
+var DEFAULT_HOST = "52.5.147.230";
 var DEFAULT_PORT = 8091;
 
 
@@ -165,7 +165,15 @@ function get( bucketName, docName, finalCallback ) {
 			getBucket(bucketName, callback);
 		},
 		function(bucket, callback) {
-			bucket.get(docName, callback);
+			bucket.get(docName, function(err, resultu) {
+				if(err) {
+					console.log("Inner err");
+					console.log(err);
+				} else {
+					console.log("success?");
+					console.log(resultu);
+				}
+			});
 		}	
 	], function(err, results) {
 		finalCallback(err, couchResultToJSON(results));
