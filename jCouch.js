@@ -165,15 +165,7 @@ function get( bucketName, docName, finalCallback ) {
 			getBucket(bucketName, callback);
 		},
 		function(bucket, callback) {
-			bucket.get(docName, function(err, resultu) {
-				if(err) {
-					console.log("Inner err");
-					console.log(err);
-				} else {
-					console.log("success?");
-					console.log(resultu);
-				}
-			});
+			bucket.get(docName, callback);
 		}	
 	], function(err, results) {
 		finalCallback(err, couchResultToJSON(results));
