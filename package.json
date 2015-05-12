@@ -8,5 +8,7 @@
     "name": "Josh Elias"
   },
   "dependencies": {
+    "async": "^0.9.0",
+    "couchbase": "^2.0.8"
   }
 }
